@@ -5,6 +5,8 @@ import { Sidebar } from "./Sidebar";
 import { MobileNav } from "./MobileNav";
 import { Header } from "./Header";
 import { useAuth } from "@/hooks/useAuth";
+import MatrixBackground from "@/components/animations/MatrixBackground";
+import PageTransition from "@/components/animations/PageTransition";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -30,10 +32,13 @@ export function MainLayout({ children, title, subtitle }: MainLayoutProps) {
           subtitle={subtitle} 
           leftContent={<MobileNav onLogout={handleLogout} />}
         />
+        <MatrixBackground opacity={0.15} speed={1} fontSize={14} />
         <main className="relative z-10 flex-1 p-4 md:p-8 overflow-x-hidden w-full">
-          <div className="mx-auto max-w-7xl w-full">
-            {children}
-          </div>
+          <PageTransition>
+            <div className="mx-auto max-w-7xl w-full">
+              {children}
+            </div>
+          </PageTransition>
         </main>
       </div>
     </div>

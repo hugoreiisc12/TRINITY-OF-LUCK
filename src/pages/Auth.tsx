@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Infinity as InfinityIcon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { z } from "zod";
+import { InfinityLoader } from "@/components/animations/InfinityLoader";
+import PixelTransition from "@/components/animations/PixelTransition";
 
 const authSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -16,9 +18,6 @@ const authSchema = z.object({
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [showContent, setShowContent] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,15 +29,6 @@ export default function Auth() {
         navigate("/");
       }
     });
-
-    // Animation sequence
-    const contentTimer = setTimeout(() => setShowContent(true), 1500);
-    const loginTimer = setTimeout(() => setShowLogin(true), 3000);
-
-    return () => {
-      clearTimeout(contentTimer);
-      clearTimeout(loginTimer);
-    };
   }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -93,96 +83,85 @@ export default function Auth() {
 
   return (
     <div className="aurora-bg min-h-screen flex flex-col items-center justify-center p-4">
-      {/* Infinity Loader */}
+      {/* Infinity Loader with moving dot */}
       <div className="relative mb-12">
-        <InfinityIcon 
-          className="h-24 w-24 text-primary animate-infinity" 
-          strokeWidth={1.5}
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-16 w-16 rounded-full bg-primary/20 blur-xl animate-pulse" />
-        </div>
+        <InfinityLoader size={96} />
       </div>
 
-      {/* Welcome Text */}
-      <h1 
-        className={`font-display text-4xl md:text-5xl font-bold text-center mb-4 transition-all duration-1000 ${
-          showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}
-      >
-        <span className="text-gradient-aurora">Bem-vindos ao</span>
-      </h1>
-      <h2 
-        className={`font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-12 transition-all duration-1000 delay-300 ${
-          showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}
-      >
-        Trinity of Luck
-      </h2>
+      {/* Welcome Text with Pixel Transition */}
+      <PixelTransition delay={1500} duration={1000}>
+        <h1 className="font-display text-4xl md:text-5xl font-bold text-center mb-4">
+          <span className="text-gradient-aurora">Bem-vindos ao</span>
+        </h1>
+      </PixelTransition>
+      
+      <PixelTransition delay={1800} duration={1000}>
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-12">
+          Trinity of Luck
+        </h2>
+      </PixelTransition>
 
-      {/* Login Form */}
-      <div 
-        className={`glass-card aurora-border w-full max-w-md p-6 md:p-8 transition-all duration-700 ${
-          showLogin ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-        }`}
-      >
-        <h3 className="font-display text-xl font-semibold text-foreground text-center mb-6">
-          Entrar na sua conta
-        </h3>
+      {/* Login Form with Pixel Transition */}
+      <PixelTransition delay={3000} duration={700}>
+        <div className="glass-card aurora-border w-full max-w-md p-6 md:p-8">
+          <h3 className="font-display text-xl font-semibold text-foreground text-center mb-6">
+            Entrar na sua conta
+          </h3>
 
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="seu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+          <form onSubmit={handleAuth} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-          <Button 
-            type="submit" 
-            variant="aurora" 
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processando...
-              </>
-            ) : (
-              "Entrar"
-            )}
-          </Button>
-          
-          <div className="text-center mt-4">
-            <span className="text-muted-foreground text-sm">Não tem uma conta? </span>
             <Button 
-              variant="link" 
-              className="p-0 text-primary hover:text-primary/80"
-              onClick={() => navigate("/register")}
+              type="submit" 
+              variant="aurora" 
+              className="w-full"
+              disabled={loading}
             >
-              Cadastre-se
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processando...
+                </>
+              ) : (
+                "Entrar"
+              )}
             </Button>
-          </div>
-        </form>
-      </div>
+            
+            <div className="text-center mt-4">
+              <span className="text-muted-foreground text-sm">Não tem uma conta? </span>
+              <Button 
+                variant="link" 
+                className="p-0 text-primary hover:text-primary/80"
+                onClick={() => navigate("/register")}
+              >
+                Cadastre-se
+              </Button>
+            </div>
+          </form>
+        </div>
+      </PixelTransition>
     </div>
   );
 }

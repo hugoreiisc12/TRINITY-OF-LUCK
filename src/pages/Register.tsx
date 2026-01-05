@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Infinity as InfinityIcon, Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { isValidCPF, isOver18, formatCPF, formatPhone, formatCEP } from "@/lib/validation";
+import { InfinityLoader } from "@/components/animations/InfinityLoader";
+import PixelTransition from "@/components/animations/PixelTransition";
 
 // Schema de validação
 const registerSchema = z.object({
@@ -196,13 +198,17 @@ export default function Register() {
 
         <div className="glass-card aurora-border p-6 md:p-8">
           <div className="flex flex-col items-center mb-8">
-            <InfinityIcon className="h-12 w-12 text-primary mb-4 animate-infinity" />
-            <h2 className="font-display text-3xl font-bold text-foreground text-center">
-              Criar Conta
-            </h2>
-            <p className="text-muted-foreground text-center mt-2">
-              Preencha seus dados para acessar o Trinity of Luck
-            </p>
+            <InfinityLoader size={64} className="mb-4" />
+            <PixelTransition delay={500} duration={700}>
+              <h2 className="font-display text-3xl font-bold text-foreground text-center">
+                Criar Conta
+              </h2>
+            </PixelTransition>
+            <PixelTransition delay={650} duration={700}>
+              <p className="text-muted-foreground text-center mt-2">
+                Preencha seus dados para acessar o Trinity of Luck
+              </p>
+            </PixelTransition>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-6">
@@ -295,7 +301,8 @@ export default function Register() {
               </RadioGroup>
             </div>
 
-            <Button type="submit" variant="aurora" className="w-full" disabled={loading}>
+            <PixelTransition delay={800} duration={700}>
+              <Button type="submit" variant="aurora" className="w-full" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -304,7 +311,8 @@ export default function Register() {
               ) : (
                 "Cadastrar"
               )}
-            </Button>
+              </Button>
+            </PixelTransition>
           </form>
         </div>
       </div>

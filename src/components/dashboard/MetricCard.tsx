@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 import { cn } from "@/lib/utils";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
@@ -15,7 +15,7 @@ interface MetricCardProps {
   delay?: number;
 }
 
-export function MetricCard({ 
+export const MetricCard = memo(function MetricCard({ 
   title, 
   value, 
   subtitle, 
@@ -62,4 +62,4 @@ export function MetricCard({
       </div>
     </div>
   );
-}
+});

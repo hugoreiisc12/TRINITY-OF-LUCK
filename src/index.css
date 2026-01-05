@@ -172,6 +172,59 @@
   .stat-glow {
     box-shadow: 0 0 40px hsl(var(--aurora-cyan) / 0.2);
   }
+
+  .pixel-transition {
+    opacity: 0;
+    filter: blur(8px) contrast(160%);
+  }
+
+  .pixel-transition.pixel-visible {
+    animation: pixel-in var(--pixel-duration, 1000ms) steps(24, end) forwards;
+  }
+
+  .page-transition-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 30;
+    opacity: 0;
+  }
+
+  .page-transition-overlay.active {
+    animation: beam-activate 700ms ease-out forwards;
+  }
+
+  .light-beam {
+    position: absolute;
+    width: 150%;
+    height: 12px;
+    background: linear-gradient(
+      135deg,
+      hsla(180, 100%, 50%, 0),
+      hsla(180, 100%, 50%, 0.7),
+      hsla(175, 84%, 50%, 0.7),
+      hsla(160, 84%, 45%, 0)
+    );
+    filter: blur(2px);
+    transform: rotate(35deg) translate(-50%, 120%);
+    animation: diagonal-sweep 700ms ease-out forwards;
+  }
+
+  .light-beam-glow {
+    position: absolute;
+    width: 160%;
+    height: 40px;
+    background: linear-gradient(
+      135deg,
+      hsla(180, 100%, 60%, 0),
+      hsla(180, 100%, 60%, 0.25),
+      hsla(175, 84%, 55%, 0.25),
+      hsla(160, 84%, 50%, 0)
+    );
+    filter: blur(18px);
+    transform: rotate(35deg) translate(-55%, 130%);
+    animation: diagonal-sweep 700ms ease-out forwards;
+  }
 }
 
 @layer utilities {
@@ -243,6 +296,38 @@
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes pixel-in {
+  0% {
+    opacity: 0;
+    filter: blur(8px) contrast(160%);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px) contrast(100%);
+  }
+}
+
+@keyframes beam-activate {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes diagonal-sweep {
+  from {
+    transform: rotate(35deg) translate(-50%, 120%);
+  }
+  to {
+    transform: rotate(35deg) translate(30%, -120%);
   }
 }
 

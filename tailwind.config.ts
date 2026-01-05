@@ -112,7 +112,17 @@ export default {
         "aurora-gradient": "linear-gradient(135deg, hsl(var(--aurora-cyan)), hsl(var(--aurora-teal)), hsl(var(--aurora-green)))",
         "aurora-radial": "radial-gradient(ellipse at center, hsl(var(--aurora-cyan) / 0.2), transparent 70%)",
       },
+      transitionDuration: {
+        50: "50ms",
+        150: "150ms",
+        200: "200ms",
+      },
+      transitionTimingFunction: {
+        smooth: "cubic-bezier(0.4, 0, 0.2, 1)",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
+  // Purge unused styles in production
+  safelist: [],
 } satisfies Config;
