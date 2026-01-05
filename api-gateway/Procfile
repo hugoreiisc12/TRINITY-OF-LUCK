@@ -1,0 +1,10 @@
+# ============================================================
+# Procfile for Heroku and Railway.app Deployment
+# ============================================================
+# This file defines the process types for your application
+
+# Main web process
+web: npm run build && npm start
+
+# Optional: Worker process for background jobs
+# worker: npm run worker

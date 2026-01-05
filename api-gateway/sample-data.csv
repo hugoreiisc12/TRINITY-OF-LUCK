@@ -1,0 +1,6 @@
+id,name,value,category,status
+1,Market A,50,prediction,active
+2,Market B,75,sports,active
+3,Market C,62,weather,inactive
+4,Market D,88,event,active
+5,Market E,45,prediction,pending

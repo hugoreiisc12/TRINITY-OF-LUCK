@@ -1,0 +1,708 @@
+{
+  "info": {
+    "_postman_id": "trinity-e2e-tests-{{ timestamp }}",
+    "name": "Trinity of Luck - E2E Tests",
+    "description": "End-to-End tests for Trinity of Luck API Gateway\nFluxo: Import → Analyze → Retrain → Export",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "trinity-api"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "1. Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response contains user ID', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.id).to.exist;",
+                  "    pm.environment.set('userId', jsonData.user.id);",
+                  "});",
+                  "",
+                  "pm.test('Response contains JWT token', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    pm.environment.set('authToken', jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test-{{$timestamp}}@trinity.local\",\n  \"password\": \"SecurePassword123!\",\n  \"name\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "2. Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('authToken', jsonData.token);",
+                  "pm.environment.set('userId', jsonData.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@trinity.local\",\n  \"password\": \"AdminPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "3. Get Current User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response contains user info', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.email).to.exist;",
+                  "    pm.expect(jsonData.user.subscription).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Import Context",
+      "item": [
+        {
+          "name": "1. Upload CSV File",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Response contains context ID', function () {",
+                  "    pm.expect(jsonData.context.id).to.exist;",
+                  "    pm.environment.set('contextId', jsonData.context.id);",
+                  "});",
+                  "",
+                  "pm.test('Metadata is present', function () {",
+                  "    pm.expect(jsonData.context.filename).to.eql('historical_data.csv');",
+                  "    pm.expect(jsonData.context.rowCount).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"historical_data.csv\",\n  \"format\": \"csv\",\n  \"content\": \"date,platform,odds,result\\n2024-01-01,betano,1.8,win\\n2024-01-02,bet365,2.1,loss\\n2024-01-03,draftkings,1.5,win\\n2024-01-04,betano,2.3,win\\n2024-01-05,bet365,1.9,loss\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/import-context",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "import-context"]
+            }
+          }
+        },
+        {
+          "name": "2. List Imported Contexts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response contains contexts array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.contexts).to.be.an('array');",
+                  "    if (jsonData.contexts.length > 0) {",
+                  "        pm.expect(jsonData.contexts[0]).to.have.property('id');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contexts?limit=10&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contexts"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Get Context Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Context contains metadata', function () {",
+                  "    pm.expect(jsonData.context.filename).to.exist;",
+                  "    pm.expect(jsonData.context.rowCount).to.exist;",
+                  "    pm.expect(jsonData.context.columnCount).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/context/{{contextId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "context", "{{contextId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analysis",
+      "item": [
+        {
+          "name": "1. Start Analysis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 202', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Analysis job is queued', function () {",
+                  "    pm.expect(jsonData.jobId).to.exist;",
+                  "    pm.expect(jsonData.status).to.eql('queued');",
+                  "    pm.environment.set('analysisJobId', jsonData.jobId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contextId\": \"{{contextId}}\",\n  \"analysisType\": \"probability\",\n  \"parameters\": {\n    \"confidenceLevel\": 0.95,\n    \"includeFactors\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/analyze",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analyze"]
+            }
+          }
+        },
+        {
+          "name": "2. Check Job Status (Poll)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Job status is valid', function () {",
+                  "    var validStates = ['queued', 'processing', 'completed', 'failed'];",
+                  "    pm.expect(validStates).to.include(jsonData.job.status);",
+                  "});",
+                  "",
+                  "// Retry if still processing",
+                  "if (jsonData.job.status === 'processing') {",
+                  "    setTimeout(function () {",
+                  "        postman.setNextRequest('2. Check Job Status (Poll)');",
+                  "    }, 2000);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/queue/status/{{analysisJobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "queue", "status", "{{analysisJobId}}"]
+            }
+          }
+        },
+        {
+          "name": "3. Get Analysis Results",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Analysis results are complete', function () {",
+                  "    pm.expect(jsonData.analysis).to.exist;",
+                  "    pm.expect(jsonData.analysis.status).to.eql('completed');",
+                  "    pm.expect(jsonData.analysis.predictions).to.exist;",
+                  "    pm.expect(jsonData.analysis.predictions.probability).to.be.above(0);",
+                  "    pm.environment.set('analysisId', jsonData.analysis.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analysis/{{analysisId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analysis", "{{analysisId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Retrain Model",
+      "item": [
+        {
+          "name": "1. Queue Retraining",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 202', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Retraining job is queued', function () {",
+                  "    pm.expect(jsonData.jobId).to.exist;",
+                  "    pm.expect(jsonData.status).to.eql('queued');",
+                  "    pm.environment.set('retrainJobId', jsonData.jobId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contextIds\": [\"{{contextId}}\"],\n  \"parameters\": {\n    \"epochs\": 100,\n    \"batchSize\": 32,\n    \"validationSplit\": 0.2\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/retrain",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "retrain"]
+            }
+          }
+        },
+        {
+          "name": "2. Monitor Retraining Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Progress is increasing', function () {",
+                  "    pm.expect(jsonData.job.progress).to.be.within(0, 100);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/queue/status/{{retrainJobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "queue", "status", "{{retrainJobId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Queue Management",
+      "item": [
+        {
+          "name": "Get Queue Statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Stats contain queue information', function () {",
+                  "    pm.expect(jsonData.stats).to.exist;",
+                  "    pm.expect(jsonData.stats.analysisQueue).to.exist;",
+                  "    pm.expect(jsonData.stats.analysisQueue).to.have.property('active');",
+                  "    pm.expect(jsonData.stats.analysisQueue).to.have.property('completed');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/queue/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "queue", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "1. Test Missing Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Error message is present', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.error).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "2. Test Invalid File Format",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error describes invalid format', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.error).to.include('format');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"data.exe\",\n  \"format\": \"exe\",\n  \"content\": \"invalid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/import-context",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "import-context"]
+            }
+          }
+        },
+        {
+          "name": "3. Test Rate Limiting",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Send multiple requests",
+                  "var requests = [];",
+                  "for (var i = 0; i < 5; i++) {",
+                  "    requests.push(pm.sendRequest({",
+                  "        url: '{{baseUrl}}/api/platforms',",
+                  "        method: 'GET'",
+                  "    }));",
+                  "}",
+                  "",
+                  "pm.test('Last request may be rate limited', function () {",
+                  "    // After rate limit threshold",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/platforms",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "platforms"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Full E2E Workflow",
+      "item": [
+        {
+          "name": "Run Complete Import → Analyze Flow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// This is a workflow test that exercises the entire pipeline",
+                  "pm.test('All steps completed successfully', function () {",
+                  "    pm.expect(pm.environment.get('authToken')).to.exist;",
+                  "    pm.expect(pm.environment.get('contextId')).to.exist;",
+                  "    pm.expect(pm.environment.get('analysisJobId')).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contextId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "analysisJobId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "analysisId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "retrainJobId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

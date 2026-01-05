@@ -1,0 +1,37 @@
+[
+  {
+    "id": "1",
+    "name": "Market A",
+    "value": 50,
+    "category": "prediction",
+    "status": "active"
+  },
+  {
+    "id": "2",
+    "name": "Market B",
+    "value": 75,
+    "category": "sports",
+    "status": "active"
+  },
+  {
+    "id": "3",
+    "name": "Market C",
+    "value": 62,
+    "category": "weather",
+    "status": "inactive"
+  },
+  {
+    "id": "4",
+    "name": "Market D",
+    "value": 88,
+    "category": "event",
+    "status": "active"
+  },
+  {
+    "id": "5",
+    "name": "Market E",
+    "value": 45,
+    "category": "prediction",
+    "status": "pending"
+  }
+]
