@@ -9,7 +9,10 @@
 import Queue from 'bull';
 import Redis from 'redis';
 import axios from 'axios';
-import { logger, monitor } from './logging.js';
+import { Logger, Monitor } from './logging.js';
+
+const logger = new Logger();
+const monitor = new Monitor();
 
 // ============================================================================
 // REDIS CONFIGURATION

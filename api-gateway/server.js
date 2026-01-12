@@ -5,7 +5,6 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { body, param, query, validationResult } from 'express-validator';
 import mongoSanitize from 'mongo-sanitize';
-import xss from 'xss-clean';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { Logger, Monitor } from './logging.js';
@@ -54,12 +53,6 @@ if (stripe) {
 // Helmet for security headers
 app.use(helmet());
 
-// Data sanitization against NoSQL injection
-app.use(mongoSanitize());
-
-// Data sanitization against XSS attacks
-app.use(xss());
-
 // Security middleware: Validation error handler
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -94,7 +87,7 @@ const preventParameterPollution = (req, res, next) => {
   next();
 };
 
-app.use(preventParameterPollution);
+// app.use(preventParameterPollution); // Temporarily disabled for debugging
 
 // CORS Configuration
 const corsOrigins = process.env.CORS_ORIGIN
